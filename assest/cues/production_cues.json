@@ -1,0 +1,44 @@
+{
+  "cues": [
+    {
+      "id": "CUE-01",
+      "scene": "SCENE I",
+      "trigger": "INIT_THREAD",
+      "lighting": "Cyan data grid illumination on floor",
+      "audio": "Low rhythmic electronic hum (40Hz)",
+      "hudDisplay": "Thread ID: thread-101 | Status: LISTENING"
+    },
+    {
+      "id": "CUE-02",
+      "scene": "SCENE II",
+      "trigger": "RANK_VETO",
+      "lighting": "Harsh overhead red spotlight on STATIC_VERIFIER",
+      "audio": "Mechanical buzzer (Exit Code 1)",
+      "hudDisplay": "TOKEN COST: 0.000 | VETO: Missing positional argument 'auth_context'"
+    },
+    {
+      "id": "CUE-03",
+      "scene": "SCENE II",
+      "trigger": "TESTS_PASSED",
+      "lighting": "Soft green perimeter wash",
+      "audio": "Soft harmonic chime",
+      "hudDisplay": "TESTS: 42/42 PASSED | ROUTE: MODEL_ARBITER"
+    },
+    {
+      "id": "CUE-04",
+      "scene": "SCENE III",
+      "trigger": "TOKEN_SURGE",
+      "lighting": "Deep velvet purple with rapid flickering amber token counter",
+      "audio": "High-frequency ticking clock",
+      "hudDisplay": "TOKENS: 4,000 -> 8,500 -> 16,000 | COMPLIANCE: AMBIGUOUS"
+    },
+    {
+      "id": "CUE-05",
+      "scene": "SCENE IV",
+      "trigger": "HUMAN_INTERRUPT",
+      "lighting": "Yellow flashing strobe decaying into single dim overhead desk lamp",
+      "audio": "Klaxon beep decaying to silence, soft footsteps, keystroke clatter",
+      "hudDisplay": "STATE DUMPED: MemorySaver.save_state() | AGENTS: FROZEN"
+    }
+  ]
+}
