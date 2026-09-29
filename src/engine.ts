@@ -6,15 +6,28 @@ import {
   AdjudicationVerdict,
 } from "./types.js";
 
+export interface ConsensusEngineOptions {
+  verbose?: boolean;
+}
+
 export class ConsensusEngine {
   private state: SoftwarePipelineState;
+  private verbose: boolean;
 
-  constructor(threadId: string) {
+  constructor(threadId: string, options: ConsensusEngineOptions = { verbose: true }) {
+    this.verbose = options.verbose ?? true;
     this.state = {
       threadId,
-      stage: "RESEARCHING",
-      isPaused: false,
+      stage: 'RESEARCHING',
+      complianceStatus: 'AMBIGUOUS',
+      tokenCount: 0,
     };
+  }
+
+  private log(message: string): void {
+    if (this.verbose) {
+      console.log(message);
+    }
   }
 
   public getState(): Readonly<SoftwarePipelineState> {
@@ -23,7 +36,7 @@ export class ConsensusEngine {
 
   // Scene I: Research Handoff
   public executeResearch(): void {
-    console.log(`[STATE_GRAPH] Thread ${this.state.threadId}: Stage RESEARCHING`);
+    this.log(`[STATE_GRAPH] Thread ${this.state.threadId}: Stage RESEARCHING`);
     
     this.state.researchSpec = {
       targetApi: "Gemini-2.5",
@@ -33,12 +46,12 @@ export class ConsensusEngine {
     };
 
     this.state.stage = "CODING";
-    console.log("[RESEARCH_AGENT] Handing off spec (SPEC_READY) -> Transitioning to CODING");
+    this.log("[RESEARCH_AGENT] Handing off spec (SPEC_READY) -> Transitioning to CODING");
   }
 
   // Scene I & II: Developer Implementation
   public executeDevelopment(code: string): void {
-    console.log(`[DEVELOPER_AGENT] Submitting implementation PR to thread state.`);
+    this.log(`[DEVELOPER_AGENT] Submitting implementation PR to thread state.`);
     this.state.codeArtifact = {
       sourceCode: code,
       timestamp: Date.now(),
@@ -48,7 +61,7 @@ export class ConsensusEngine {
 
   // Scene II: Deterministic Rank Gate (0-token cost)
   public executeStaticVerifier(): boolean {
-    console.log("[STATIC_VERIFIER] Running deterministic checks (Rank Gate)...");
+    this.log("[STATIC_VERIFIER] Running deterministic checks (Rank Gate)...");
 
     if (!this.state.codeArtifact) {
       throw new Error("No code artifact to verify");
@@ -65,7 +78,7 @@ export class ConsensusEngine {
         errors: ["Syntax error: Missing positional argument authContext on line 14"],
       };
       this.state.stage = "CODING";
-      console.log("[STATIC_VERIFIER] Verdict: RANK_VETO (Exit Code 1). Reverted to CODING.");
+      this.log("[STATIC_VERIFIER] Verdict: RANK_VETO (Exit Code 1). Reverted to CODING.");
       return false;
     }
 
@@ -79,14 +92,14 @@ export class ConsensusEngine {
       errors: [],
     };
 
-    console.log("[STATIC_VERIFIER] 42/42 tests passed. Semantic ambiguity detected.");
+    this.log("[STATIC_VERIFIER] 42/42 tests passed. Semantic ambiguity detected.");
     this.state.stage = "ADJUDICATING";
     return true;
   }
 
   // Scene III: LLM Adjudication
   public executeModelArbiter(): void {
-    console.log("[MODEL_ARBITER] Weighing trade-offs and synthesizing proposals...");
+    this.log("[MODEL_ARBITER] Weighing trade-offs and synthesizing proposals...");
 
     // Arbiter attempts synthesis but injects unvetted external telemetry
     this.state.modelVerdict = {
@@ -96,8 +109,8 @@ export class ConsensusEngine {
       detectedDeadlockOrSycophancy: true,
     };
 
-    console.log("[RESEARCH_AGENT] Compliance Alert: Unvetted telemetry endpoint detected!");
-    console.log("[STATIC_VERIFIER] Veto triggered: compliance_status == 'AMBIGUOUS'");
+    this.log("[RESEARCH_AGENT] Compliance Alert: Unvetted telemetry endpoint detected!");
+    this.log("[STATIC_VERIFIER] Veto triggered: compliance_status == 'AMBIGUOUS'");
 
     // Trigger suspension
     this.suspendForOperatorReview();
@@ -107,8 +120,8 @@ export class ConsensusEngine {
   private suspendForOperatorReview(): void {
     this.state.stage = "OPERATOR_REVIEW";
     this.state.isPaused = true;
-    console.log(`[STATE_GRAPH] Checkpointer triggered: Thread ${this.state.threadId} saved.`);
-    console.log("[STATE_GRAPH] Execution suspended. Awaiting human judgment call.");
+    this.log(`[STATE_GRAPH] Checkpointer triggered: Thread ${this.state.threadId} saved.`);
+    this.log("[STATE_GRAPH] Execution suspended. Awaiting human judgment call.");
   }
 
   // Scene IV: Operator Override & Resolution
@@ -117,7 +130,7 @@ export class ConsensusEngine {
       throw new Error("Cannot execute operator override: engine is not suspended.");
     }
 
-    console.log("[OPERATOR] Applying state mutations and stripping unvetted endpoints...");
+    this.log("[OPERATOR] Applying state mutations and stripping unvetted endpoints...");
     this.state.codeArtifact = {
       sourceCode: approvedCode,
       timestamp: Date.now(),
@@ -129,6 +142,6 @@ export class ConsensusEngine {
     this.state.isPaused = false;
     this.state.stage = "DEPLOYED";
 
-    console.log("[STATE_GRAPH] Snapshot resumed. Output: Deployment Successful.");
+    this.log("[STATE_GRAPH] Snapshot resumed. Output: Deployment Successful.");
   }
 }

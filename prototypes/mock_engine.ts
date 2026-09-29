@@ -50,7 +50,8 @@ async function runEnhancedSimulation() {
   // Header Banner loaded from assets/banner.txt
   console.log(`${C.bold}${C.magenta}${banner}${C.reset}\n`);
 
-  const engine = new ConsensusEngine('thread-101');
+  // Single declaration initialized with verbose: false
+  const engine = new ConsensusEngine('thread-101', { verbose: false });
   renderHud('INITIALIZING', 0, 'STANDBY');
   await sleep(600);
 
